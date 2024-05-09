@@ -228,61 +228,81 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
 
 
     private fun showDownloadNotification(downloadId: Long, title: String, description: String, filePath: String, context: Context) {
-    val channelId = "file_downloader"
-    val notificationId = 1
+        val channelId = "file_downloader"
+        val notificationId = 1
 
-    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(channelId, "File Downloader", NotificationManager.IMPORTANCE_DEFAULT)
-        notificationManager.createNotificationChannel(channel)
-    }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "File Downloader",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
 
-    val notificationIntent = Intent(Intent.ACTION_VIEW).apply {
-        val file = File(filePath)
-        val fileUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-        setDataAndType(fileUri, getMimeType(file))
-        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-    }
-    val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val notificationIntent = Intent(Intent.ACTION_VIEW).apply {
+            val file = File(filePath)
+            val fileUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                file
+            )
+            setDataAndType(fileUri, getMimeType(file))
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
-    val notificationBuilder = NotificationCompat.Builder(context, channelId)
-        .setContentTitle(title)
-        .setContentText(description)
-        .setSmallIcon(android.R.drawable.ic_dialog_info)
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setAutoCancel(true)
-        .setContentIntent(pendingIntent)
+        val notificationBuilder = NotificationCompat.Builder(context, channelId)
+            .setContentTitle(title)
+            .setContentText(description)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
 
-    // Register a BroadcastReceiver to receive updates about the download progress
-    val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val action = intent?.action
-            if (DownloadManager.ACTION_DOWNLOAD_COMPLETE == action) {
-                // Download completed, update notification
-                notificationBuilder.setContentText("Downloaded")
+        val query = DownloadManager.Query().setFilterById(downloadId)
+
+        val handler = Handler(Looper.getMainLooper())
+        var isDownloadComplete = false // Flag to track download completion
+
+        val updateNotificationRunnable = object : Runnable {
+            override fun run() {
+                val cursor = (context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager).query(query)
+                if (cursor.moveToFirst()) {
+                    val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        isDownloadComplete = true // Set the flag to true
+                        notificationBuilder.setContentText("Downloaded")
+                        notificationBuilder.setProgress(0, 0, false)
+                    } else if (status == DownloadManager.STATUS_RUNNING || status == DownloadManager.STATUS_PENDING) {
+                        val bytesDownloaded = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                        val bytesTotal = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                        val progress = (bytesDownloaded * 100 / bytesTotal).toInt()
+                        notificationBuilder.setProgress(100, progress, false)
+                    }
+                }
+                cursor.close()
+
                 notificationManager.notify(notificationId, notificationBuilder.build())
+
+                // Repeat the update every second if download is still ongoing
+                if (!isDownloadComplete) {
+                    handler.postDelayed(this, 1000)
+                }
             }
         }
-    }
-    context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
-    // Update the notification with progress using DownloadManager query
-    val query = DownloadManager.Query().setFilterById(downloadId)
-    val cursor = downloadManager?.query(query)
-    cursor?.use { cursor ->
-        if (cursor.moveToFirst()) {
-            val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-            if (status == DownloadManager.STATUS_RUNNING || status == DownloadManager.STATUS_PENDING) {
-                val bytesDownloaded = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                val bytesTotal = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                val progress = (bytesDownloaded * 100 / bytesTotal).toInt()
-                notificationBuilder.setProgress(100, progress, false)
-                notificationManager.notify(notificationId, notificationBuilder.build())
-            }
-        }
+        // Initial call to start the update loop
+        handler.post(updateNotificationRunnable)
     }
-}
 
 
 
