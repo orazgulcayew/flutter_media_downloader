@@ -7,7 +7,7 @@ documentation: https://github.com/ParthSheth021299/flutter_media_downloader/blob
 
 
 environment:
-  sdk: '>=3.0.6 <4.0.0'
+  sdk: '>=2.19.4 <3.0.0'
   flutter: ">=3.3.0"
 
 
