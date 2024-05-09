@@ -119,7 +119,6 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
                 "Custom Notifications",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-            notificationManager.setSound(null, null)
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -242,7 +241,6 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
                 "File Downloader",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-            notificationManager.setSound(null, null)
             notificationManager.createNotificationChannel(channel)
         }
 
