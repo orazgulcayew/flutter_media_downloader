@@ -119,6 +119,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
                 "Custom Notifications",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
+            notificationManager.setSound(null, null)
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -241,6 +242,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
                 "File Downloader",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
+            notificationManager.setSound(null, null)
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -266,8 +268,8 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
             .setContentText(description)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
             .setSound(null)
+            .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
         val query = DownloadManager.Query().setFilterById(downloadId)
@@ -329,4 +331,3 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
         // Clean up resources if needed
     }
 }
-
