@@ -327,3 +327,4 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
         // Clean up resources if needed
     }
 }
+
