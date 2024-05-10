@@ -130,7 +130,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
             .setContentTitle(title)
             .setContentText(message)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
@@ -264,7 +264,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
             .setContentTitle(title)
             .setContentText(description)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
