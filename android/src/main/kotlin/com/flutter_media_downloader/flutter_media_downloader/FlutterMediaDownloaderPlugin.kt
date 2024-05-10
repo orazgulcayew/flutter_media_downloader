@@ -117,7 +117,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
             val channel = NotificationChannel(
                 channelId,
                 "Custom Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             )
             notificationManager.createNotificationChannel(channel)
         }
@@ -130,7 +130,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
             .setContentTitle(title)
             .setContentText(message)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSound(null)
             .setAutoCancel(true)
             .addAction(
@@ -239,7 +239,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
             val channel = NotificationChannel(
                 channelId,
                 "File Downloader",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             )
             notificationManager.createNotificationChannel(channel)
         }
@@ -265,7 +265,7 @@ class FlutterMediaDownloaderPlugin : FlutterPlugin, MethodCallHandler {
             .setContentTitle(title)
             .setContentText(description)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSound(null)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
